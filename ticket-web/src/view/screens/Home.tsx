@@ -162,7 +162,7 @@ function Home(): JSX.Element {
           <div className="collapsible-body">
             <div className="input-field col s12">
               <select ref={selectMovieRef} onChange={(e) => setMovie(e.target.value)} >
-                <option disabled defaultValue="">Choose your option</option>
+                <option defaultValue="">Choose your option</option>
                 <option value="1">Option 1</option>
                 <option value="2">Option 2</option>
                 <option value="3">Option 3</option>
@@ -177,7 +177,7 @@ function Home(): JSX.Element {
           <div className="collapsible-body">
             <div className="input-field col s12">
               <select ref={selectDateRef} onChange={(e) => setDate(e.target.value)}>
-                <option disabled defaultValue="">Choose your option</option>
+                <option defaultValue="">Choose your option</option>
                 <option value="1">Option 1</option>
                 <option value="2">Option 2</option>
                 <option value="3">Option 3</option>
@@ -265,7 +265,7 @@ function Home(): JSX.Element {
           </table>
         </div>
         <div className="booking">
-          <button className="btn" onClick={()=>submit()}>Book now</button>
+          <button className="btn" onClick={submit}>Book now</button>
         </div>
       </div>
     </div>

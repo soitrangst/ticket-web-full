@@ -9,14 +9,18 @@ const Error = {
     status: 401
 }
 
+interface ResponseModel {
+    isSuccess: boolean,
+    data: any,
+}
+
 const storageService = new StorageService()
 
-const customePost = async (url:string,dataForm:any):Promise<any> => {
-    
-    const token = storageService.get(Constant.auths.token)
+const customePost = async (url: string, dataForm: any): Promise<any> => {
 
-    return (
-      await axios({
+    const token = storageService.get(Constant.auths.token)
+    try {
+        const res = await axios({
             url: url,
             method: 'POST',
             headers: {
@@ -25,18 +29,27 @@ const customePost = async (url:string,dataForm:any):Promise<any> => {
             },
             data: dataForm
         })
-    )
-}
-
-const orderApi = async (data:Booking):Promise<any> => {
-    try {
-        const response = await customePost(url.order,data)
+        
+        let response: ResponseModel = {
+            isSuccess: true,
+            data: res.data
+        }
         return response
     } catch (error) {
-        return Error
+
+        let response: ResponseModel = {
+            isSuccess: false,
+            data: null
+        }
+        return response
     }
 }
 
-export{
+const orderApi = async (data: Booking): Promise<any> => {
+    const result = await customePost(url.order, data)
+    return result
+}
+
+export {
     orderApi
 }
