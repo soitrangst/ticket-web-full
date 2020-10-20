@@ -1,16 +1,36 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { getAllOrder } from '../../api';
 
 import Avatar from "../../assets/images/avatar.png"
+import { ListOrderModel } from '../../model/listOrderModel ';
+import { Url } from '../../service/infastructural/constant';
+import { convertTime } from '../../service/infastructural/Helpers';
 
 function Admin() {
 
     const userDropDown = useRef(null)
+    const history = useHistory()
+    const [data, setData] = useState<Array<ListOrderModel>>([])
+
+    const getData = async (): Promise<void> => {
+        const response = await getAllOrder()
+        if (response.isSuccess) {
+            console.log(response.data);
+            setData(response.data.data)
+        } else {
+            history.push(Url[401])
+        }
+
+    }
 
     useEffect(() => {
         M.Dropdown.init(userDropDown.current)
+        getData()
     }, []);
 
     return (
+
         <React.Fragment>
             <section>
                 <aside className="sidebar">
@@ -120,48 +140,73 @@ function Admin() {
                     {/* Menu */}
                 </aside>
             </section>
-            <section className="content">
-                <div className="container-fluid">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID Ticket</th>
-                                <th>Name User</th>
-                                <th>Email User</th>
-                                <th>Used</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            <tr>
-                                <td>Alvin</td>
-                                <td>Eclair</td>
-                                <td>$0.87</td>
-                                <td>
-                                    <input type="checkbox" className="checkbox" defaultChecked={true} style={{opacity:1}}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Alvin</td>
-                                <td>Eclair</td>
-                                <td>$0.87</td>
-                                <td>
-                                    <input type="checkbox" className="checkbox" defaultChecked={true} style={{opacity:1}}/>
-                                </td>
-                            </tr>
+            { data.length > 0 && (
 
-                            <tr>
-                                <td>Alvin</td>
-                                <td>Eclair</td>
-                                <td>$0.87</td>
-                                <td>
-                                    <input type="checkbox" className="checkbox" defaultChecked={true} style={{opacity:1}}/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                <section className="content">
+                    <div className="container-fluid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID Order</th>
+                                    <th>Customer Name</th>
+                                    <th>Customer Email</th>
+                                    <th>Movie</th>
+                                    <th>Hall</th>
+                                    <th>Date</th>
+                                    <th>Used</th>
+                                    <th>Booked At</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {data.map((e, index) => {
+
+                                    const idOrder = e._id,
+                                        customerName = e.customerName,
+                                        customerEmail = e.customerEmail,
+                                        movie = e.movie,
+                                        hall = e.hall,
+                                        date = e.date,
+                                        bookedAt = convertTime(e.createAt),
+                                        tickets = e.tickets
+
+                                    return (
+
+                                        <tr key={index}>
+                                            <td className="text"> {idOrder} </td>
+                                            <td className="text"> {customerName} </td>
+                                            <td className="text"> {customerEmail} </td>
+                                            <td className="text"> {movie} </td>
+                                            <td className="text"> {hall} </td>
+                                            <td className="text"> {date} </td>
+                                            <td>
+                                                {tickets.map((t, idx) => {
+                                                    const ticketID = t._id,
+                                                        used = t.used
+                                                    return (
+                                                        <div key={idx} style={{ padding: "10px" }}>
+                                                            <span className="label">IdTicket:</span>
+                                                            <span className="text"> {ticketID} </span>
+                                                            <div>
+                                                                <span className="label">Used:</span>
+                                                                <input type="checkbox" className="checkbox" defaultChecked={used} style={{ opacity: 1 }} />
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </td>
+                                            <td className="text"> {bookedAt} </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            )
+
+            }
         </React.Fragment>
     );
 }

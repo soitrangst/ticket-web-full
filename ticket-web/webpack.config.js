@@ -126,6 +126,7 @@ module.exports = (env, options) => {
             timings: false,
         },
         devServer: {
+            host: '192.168.1.17',
             contentBase: "dist",
             historyApiFallback: true,
             hot: true,

@@ -20,6 +20,7 @@
     "@types/qrcode.react": "^1.0.1",
     "@types/react-router-dom": "^5.1.6",
     "axios": "^0.20.0",
+    "emailjs-com": "^2.6.3",
     "materialize-css": "^1.0.0-rc.2",
     "qrcode.react": "^1.0.0",
     "react": "^16.12.0",

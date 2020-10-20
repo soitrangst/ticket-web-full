@@ -24,8 +24,11 @@ export const Constant = {
 };
 
 export const Url = {
+    link:'http://192.168.1.17:3000',
     home:'/',
     payment: '/dat-ve',
     receive:'/nhan-ve',
-    admin:'/admin'
+    admin:'/admin',
+    getTicket:'/ticket/codeID',
+    401:'/401'
 }

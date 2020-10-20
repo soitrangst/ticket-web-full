@@ -1,14 +1,14 @@
 import React from 'react';
-import { Tickets } from './Detail';
+import { Ticket } from './Detail';
 
 
 import QRCode from "qrcode.react"
 
-import barCode from "../../assets/images/barcode.png";
 import iconMoive from "../../assets/images/icon-moive.png"
+import { Url } from '../../service/infastructural/constant';
 
 type PropsType = {
-    tickets: Array<Tickets>
+    tickets: Array<Ticket>
 }
 
 const TicketScreen: React.FC<PropsType> = (props: PropsType) => {
@@ -20,14 +20,15 @@ const TicketScreen: React.FC<PropsType> = (props: PropsType) => {
         <React.Fragment>
 
             {tickets.map((e) => {
-                const key = e.seats.loc,
+                const key = e.ticket.loc,
                     date = e.date,
                     movie = e.movie,
-                    price = e.seats.price,
-                    seat = e.seats.name,
-                    type = e.seats.zone
+                    price = e.ticket.price,
+                    seat = e.ticket.name,
+                    type = e.ticket.zone,
+                    hall = e.hall
                     const qr = <QRCode   
-                    value={"http://picturesofpeoplescanningqrcodes.tumblr.com/"}
+                    value={Url.link+ Url.getTicket+'?'+ e.ticket.code}
                     size={100}
                     bgColor={"#ffffff"}
                     fgColor={"#000000"}
@@ -35,7 +36,6 @@ const TicketScreen: React.FC<PropsType> = (props: PropsType) => {
                     includeMargin={false}
                     renderAs={"svg"}
                     />
-                    
                 return (
                     <div key={key} className="card col s12 m10 l7 row" >
                         <div className="card-body col l10 ">
@@ -68,7 +68,7 @@ const TicketScreen: React.FC<PropsType> = (props: PropsType) => {
                                 <div className="item">
                                     <span className="label">Hall</span>
                                     <div>
-                                        <span> Americano </span>
+                                        <span> {hall} </span>
                                     </div>
                                 </div>
 

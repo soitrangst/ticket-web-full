@@ -1,11 +1,10 @@
+import { SeatModel } from "./seatModel";
+import { UserModel} from "./userModel";
 
-export interface Booking {
-  name: string,
-  email: string,
-  phone: number,
+export interface BookingModel extends UserModel {
   movie: string,
-  date:Date,
-  seat: [
-    { id: string }
-  ],
+  date: string,
+  seats: Array<SeatModel>,
+  hall:string,
+  totalPrice?: number
 }

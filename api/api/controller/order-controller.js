@@ -1,19 +1,22 @@
 const jwt = require('jsonwebtoken');
 const Order = require("../models/order")
 const Ticket = require("../models/ticket")
-// exports.get_all_order = async(req, res, next) => {
-//     try {
-//         const products = await Post.find().limit(50)
-//         res.status(200).json({
-//             count: products.length,
-//             data: products
-//         })
-//     } catch (err) {
-//         res.status(500).json({
-//             message: err
-//         })
-//     }
-// }
+
+exports.get_all_order = async(req, res, next) => {
+    try {
+        const orders = await Order.find()
+        .limit(50)
+        .populate('tickets',"_id used")
+        res.status(200).json({
+            message:"Get Successfully",
+            data: orders
+        })
+    } catch (err) {
+        res.status(500).json({
+            message: err
+        })
+    }
+}
 
 exports.create_new = async (req, res, next) => {
     try {
@@ -42,7 +45,6 @@ exports.create_new = async (req, res, next) => {
 
         })
 
-
         const order = new Order({
             movie,
             customerName,
@@ -51,12 +53,11 @@ exports.create_new = async (req, res, next) => {
             date,
             tickets: ticketId
         });
-        const savedOrder = await order.save()
+        await order.save()
 
         res.json({
             message: "Create successfull",
             ticketCodes,
-            order
         })
 
     } catch (err) {
@@ -68,17 +69,20 @@ exports.create_new = async (req, res, next) => {
 
 exports.get_specific = async (req, res, next) => {
     try {
-        const ticket = await Ticket.findOneAndUpdate(
-            { code: req.params.code },
-            { $set:{used: true,update: new Date()}},
-            { new: true }
+        const ticket = await Ticket.findOne(
+            { code: req.params.code }
         )
         console.log(ticket);
         if (ticket) {
-            await Ticket.updateOne()
             res.status(200).json({
+                message:"Get ticket successfully",
                 data: ticket
             })
+          await Ticket.findOneAndUpdate(
+                { code: req.params.code },
+                { $set:{used: true,update: new Date()}},
+                {new: true,useFindAndModify: false}
+            )
         } else {
             res.status(404).json({
                 message: "code not found"

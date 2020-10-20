@@ -1,21 +1,16 @@
 import React from 'react';
+import { SeatModel } from '../../model/seatModel';
 import { ToastCustomWarning } from '../../service/infastructural/toast';
 
 
 
-export interface Reservation {
-    zone: string,
-    price: number,
-    loc: string,
-    name:string
-}
 
 interface StateType {
-    seats: Array<Reservation>
+    seats: Array<SeatModel>
 }
 
 type PropType = {
-    updateSeat: (e: Array<Reservation>) => void
+    updateSeat: (e: Array<SeatModel>) => void
 }
 
 class Seat extends React.Component<PropType, StateType> {
@@ -28,7 +23,7 @@ class Seat extends React.Component<PropType, StateType> {
     }
 
     render(): JSX.Element {
-        let seats: Array<Reservation> = []
+        let seats: Array<SeatModel> = []
         const selectedseats = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
             const element = e.target as HTMLElement
@@ -43,7 +38,7 @@ class Seat extends React.Component<PropType, StateType> {
 
             if (element.classList.value.split(' ').indexOf('checked') === -1) {
                 element.classList.add('checked')
-                const data: Reservation = {
+                const data: SeatModel = {
                     zone,
                     loc,
                     price: parseFloat(element.getAttribute('data-price')),
@@ -51,7 +46,7 @@ class Seat extends React.Component<PropType, StateType> {
                 }
                 seats.push(data)
             } else {
-                const newSeats: Array<Reservation> = seats.filter(s => s.loc !== loc)
+                const newSeats: Array<SeatModel> = seats.filter(s => s.loc !== loc)
                 seats = [...newSeats]
                 element.classList.remove('checked')
             }
@@ -67,7 +62,7 @@ class Seat extends React.Component<PropType, StateType> {
 
                         <div className="seat empty">
                             Q88
-                </div>
+                        </div>
                         <div className="seat empty">
                             Q88							</div>
 

@@ -16,7 +16,7 @@ export class StorageService {
             }
         }
 
-        return JSON.parse(localStorage.getItem(key) || "")
+        return localStorage.getItem(key) || ""
     }
 
     remove(key: string): void {

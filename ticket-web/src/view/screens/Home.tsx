@@ -1,36 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import Seat, { Reservation } from "./Seat"
+import Seat from "./Seat"
 
 
 import M from "materialize-css"
+import { init, send } from 'emailjs-com';
 
-import {ToastCustomWarning} from "../../service/infastructural/toast"
+import { ToastCustomWarning } from "../../service/infastructural/toast"
 
-import { StorageService } from '../../service/storageService';
-import { Constant, Url } from '../../service/infastructural/constant';
+import { Url } from '../../service/infastructural/constant';
 import { useHistory } from 'react-router-dom';
 import { orderApi } from '../../api';
+import { BookingModel } from '../../model/bookingModel';
+import { SeatModel } from '../../model/seatModel';
+import { ResponseModel } from '../../model/responseModel';
 
 
-const storageSerivce = new StorageService()
 
-interface User {
-  customerName: string,
-  customerEmail: string,
-}
-
-export interface Booking extends User {
-  movie: string,
-  date: string,
-  seats: Array<Reservation>,
-  hall:string,
-  totalPrice?: number
+interface MessageMail {
+  message_html: string,
+  from_name: string,
+  reply_to: string
 }
 
 function Home(): JSX.Element {
 
-  const history= useHistory()
+  const history = useHistory()
 
   const selectMovieRef = useRef(null)
   const selectDateRef = useRef(null)
@@ -38,7 +33,7 @@ function Home(): JSX.Element {
 
   const [movie, setMovie] = useState<string>('')
   const [date, setDate] = useState<string>('')
-  const [seats, setSeats] = useState<Array<Reservation>>([])
+  const [seats, setSeats] = useState<Array<SeatModel>>([])
   const [customerName, setCustomerName] = useState<string>('')
   const [customerEmail, setCustomerEmail] = useState<string>()
   const [totalPrice, setTotalPrice] = useState<number>()
@@ -47,9 +42,10 @@ function Home(): JSX.Element {
     M.Collapsible.init(collapsible.current, { accordion: false })
     M.FormSelect.init(selectMovieRef.current,)
     M.FormSelect.init(selectDateRef.current)
+    init("user_l9CkjWaLXC4f4ypel5HJy");
   }, [])
 
-  const updateTotalPrice = (e: Array<Reservation>): void => {
+  const updateTotalPrice = (e: Array<SeatModel>): void => {
     if (e.length > 0) {
       setTotalPrice(
         e.reduce((a, l) => a += l.price, 0)
@@ -63,13 +59,13 @@ function Home(): JSX.Element {
     return seats.map((e) => { return e.name }).join(',')
   }
 
-  const updateSeat = (e: Array<Reservation>): void => {
+  const updateSeat = (e: Array<SeatModel>): void => {
     setSeats(e)
     updateTotalPrice(e)
   }
 
   const alertSelect = (e: React.MouseEvent<HTMLLIElement, MouseEvent>, name: string): void => {
-    const element = (e.target as HTMLLIElement ).parentElement
+    const element = (e.target as HTMLLIElement).parentElement
     if (name === "date") {
       if (!movie) {
         ToastCustomWarning('Vui lòng chọn film')
@@ -85,47 +81,57 @@ function Home(): JSX.Element {
       }
     }
   }
+  const sendFeedback = ( variables: MessageMail) => {
+    send(
+      'service_j0fatyl', "template_eyasvay",
+      variables
+    ).then(res => {
+      console.log('Email successfully sent!')
+    })
+      // Handle errors here however you like, or use a React error boundary
+      .catch(err => console.error('Oh well, you failed. Here some thoughts on the error that occured:', err))
+  }
 
-  const submit = async ():Promise<void> => {
-    if(validate()){
-      const dataform:Booking = {
+  const submit = async (): Promise<void> => {
+    if (validate()) {
+      const dataform: BookingModel = {
         movie,
         date,
         seats,
-        customerName:customerName.trim(),
-        customerEmail:customerEmail.trim(),
-        hall:"Arizona",
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        hall: "Arizona",
       }
-      const response = await orderApi(dataform)
-      console.log(response);
-      storageSerivce.set(Constant.bookingData.isData,true)
-      storageSerivce.set(Constant.bookingData.data,dataform)
-      history.push(Url.receive)
+      const response: ResponseModel = await orderApi(dataform)
+      if (response.isSuccess) {
+        sendFeedback( { message_html: `Your tickets was create, visit ${Url.link + Url.receive}`, from_name: "FDS", reply_to: customerEmail })
+        history.push(Url.receive)
+      }
     }
   }
 
-  const validate = ():boolean => {
+  const validate = (): boolean => {
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
-    if(!emailRegex.test(customerEmail)){
-      
+    if (!emailRegex.test(customerEmail)) {
+
       ToastCustomWarning('Vui lòng nhập đúng email')
       return false
     }
-    if(customerName.trim().length < 1){
+    if (customerName.trim().length < 1) {
       ToastCustomWarning('Vui lòng nhập tên')
       return false
     }
-    if(!movie){
-      
+    if (!movie) {
+
       ToastCustomWarning('Vui lòng chọn film')
       return false
     }
-    if(!date){
+    if (!date) {
       ToastCustomWarning('Vui lòng chọn ngày xem')
       return false
     }
-    if(!totalPrice){
+    if (!totalPrice) {
       ToastCustomWarning("Vui lòng chọn ghế")
       return false
     }
@@ -140,13 +146,13 @@ function Home(): JSX.Element {
           <div className="row">
 
             <div className="input-field col s12">
-              <input  id="name" type="text"
+              <input id="name" type="text"
                 onChange={(e) => setCustomerName(e.target.value)} />
               <label htmlFor="name">Your name</label>
             </div>
 
             <div className="input-field col s12">
-              <input  id="email" type="text"
+              <input id="email" type="text"
                 onChange={(e) => setCustomerEmail(e.target.value)} />
               <label htmlFor="email">Your email</label>
             </div>
@@ -163,9 +169,9 @@ function Home(): JSX.Element {
             <div className="input-field col s12">
               <select ref={selectMovieRef} onChange={(e) => setMovie(e.target.value)} >
                 <option defaultValue="">Choose your option</option>
-                <option value="1">Option 1</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
+                <option value="QUÁI VẬT SĂN ĐÊM">QUÁI VẬT SĂN ĐÊM</option>
+                <option value="SÓNG THẦN Ở HAEUNDAE">SÓNG THẦN Ở HAEUNDAE</option>
+                <option value="CỤC NỢ HÓA CỤC CƯNG">CỤC NỢ HÓA CỤC CƯNG</option>
               </select>
               <label>Sellect your movie</label>
             </div>
@@ -178,9 +184,9 @@ function Home(): JSX.Element {
             <div className="input-field col s12">
               <select ref={selectDateRef} onChange={(e) => setDate(e.target.value)}>
                 <option defaultValue="">Choose your option</option>
-                <option value="1">Option 1</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
+                <option value="25/10/2020-8:30">25/10/2020-8:30</option>
+                <option value="25/10/2020-10:30">25/10/2020-10:30</option>
+                <option value="25/10/2020-20:30">25/10/2020-20:30</option>
               </select>
               <label>Sellect your date</label>
             </div>
@@ -230,7 +236,7 @@ function Home(): JSX.Element {
               </tr>
               <tr>
                 <td className="label">Phòng chiếu</td>
-                <td>Cinema 6</td>
+                <td>Arizona</td>
               </tr>
               <tr className="block-seats" >
                 <td className="label">Loại ghế</td>

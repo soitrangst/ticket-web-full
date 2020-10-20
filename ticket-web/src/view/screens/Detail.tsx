@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { ListTicketModel } from '../../model/listTicketModel';
+import { SeatModel } from '../../model/seatModel';
+import { TicketModel } from '../../model/ticketModel';
 
 //libs
 
@@ -7,39 +10,38 @@ import { Constant } from '../../service/infastructural/constant';
 import { ToastCustomSuccess } from '../../service/infastructural/toast';
 import { StorageService } from '../../service/storageService';
 import Empty from './Empty';
-import { Booking } from './Home';
 
-import { Reservation } from './Seat';
+
 import TicketScreen from './Tickets';
 
 
 const storageService = new StorageService()
 
-export interface Tickets {
+export interface Ticket {
     movie: string,
     date: string,
-    seats: Reservation,
+    hall:string
+    ticket:TicketModel
 }
 
 
 const Detail: React.FC = () => {
 
-    const data: Booking = storageService.get(Constant.bookingData.isData)
+    const data: ListTicketModel = storageService.get(Constant.bookingData.isData)
 
-    const [tickets, setTickets] = useState<Array<Tickets>>([])
+    const [tickets, setTickets] = useState<Array<Ticket>>([])
 
 
     useEffect(() => {
         if (data) {
-
-            const ticketList: Array<Tickets> = data.seats.map((e) => {
+            const ticketList: Array<Ticket> = data.tickets.map((e) => {
                 return {
-                    movie: data.movie,
                     date: data.date,
-                    seats: { ...e }
+                    hall: data.hall,
+                    movie: data.movie,
+                    ticket:{...e}
                 }
             })
-            console.log(ticketList);
             setTickets(ticketList)
         }
     }, [])

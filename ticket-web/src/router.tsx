@@ -6,6 +6,7 @@ import Detail from "./view/screens/Detail"
 import { Url } from './service/infastructural/constant';
 import Empty from './view/screens/Empty';
 import Admin from './view/screens/Admin';
+import GetTicket from "./view/screens/GetTicket/getTicket"
 
 
 
@@ -25,6 +26,10 @@ const Router: React.FC = () => {
 
         <Route path={Url.admin}>
           <Admin />
+        </Route>
+
+        <Route path={Url.getTicket}>
+          <GetTicket />
         </Route>
 
         <Route path="/401">
